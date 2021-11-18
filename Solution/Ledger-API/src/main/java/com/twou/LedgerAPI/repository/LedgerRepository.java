@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import com.twou.LedgerAPI.model.Ledger;
 
 @Repository
-public interface LedgerRepository extends JpaRepository<Ledger, Integer> {
+public interface LedgerRepository extends JpaRepository<Ledger, Long> {
 
 }
