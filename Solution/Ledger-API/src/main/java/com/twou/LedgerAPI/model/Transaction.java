@@ -9,9 +9,9 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
-@SQLDelete(sql = "UPDATE ledger SET soft_delete = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE transaction SET soft_delete = true WHERE id = ?")
 @Where(clause = "soft_delete = false")
-public class Ledger implements Serializable {
+public class Transaction implements Serializable {
 
     @Column(nullable = false, updatable = false)
     @Id
@@ -49,7 +49,7 @@ public class Ledger implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Ledger ledger = (Ledger) o;
+        Transaction ledger = (Transaction) o;
         return getId().equals(ledger.getId()) && getSender().equals(ledger.getSender())
                 && getRecipient().equals(ledger.getRecipient())
                 && getTransactionValue().equals(ledger.getTransactionValue());
