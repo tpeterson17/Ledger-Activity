@@ -1,5 +1,6 @@
 package com.twou.LedgerAPI.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -9,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @SQLDelete(sql = "UPDATE transaction SET soft_delete = true WHERE id = ?")
 @Where(clause = "soft_delete = false")
 public class Transaction implements Serializable {
@@ -35,6 +37,10 @@ public class Transaction implements Serializable {
 
     public BigDecimal getTransactionValue() {
         return transactionValue;
+    }
+
+    public void setTransactionValue(BigDecimal transactionValue) {
+        this.transactionValue = transactionValue;
     }
 
     public String getRecipient() {
