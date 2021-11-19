@@ -55,10 +55,10 @@ public class Transaction implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Transaction ledger = (Transaction) o;
-        return getId().equals(ledger.getId()) && getSender().equals(ledger.getSender())
-                && getRecipient().equals(ledger.getRecipient())
-                && getTransactionValue().equals(ledger.getTransactionValue());
+        Transaction transaction = (Transaction) o;
+        return getId().equals(transaction.getId()) && getSender().equals(transaction.getSender())
+                && getRecipient().equals(transaction.getRecipient())
+                && getTransactionValue().equals(transaction.getTransactionValue());
     }
 
     @Override
@@ -68,7 +68,7 @@ public class Transaction implements Serializable {
 
     @Override
     public String toString() {
-        return "Ledger{" +
+        return "Transaction{" +
                 "id=" + id +
                 ", sender='" + sender + '\'' +
                 ", recipient='" + recipient + '\'' +
