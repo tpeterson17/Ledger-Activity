@@ -1,7 +1,36 @@
-General Order of development:
-1. Generate the project via start.spring.io (if I don't use starter code).
-2. Create the DAOs.
-3. Make sure that the project is able to create the MySQL database.
-4. Create the controller.
-5. Make sure that the project runs successfully with the controllers in the picture.
-6. Test the API via Postman or Insomnia.
+# Ledger Activity
+
+## Instructor Notes
+
+
+## Introduction and Level Set
+
+
+## Purpose
+
+
+## Learning Objectives
+
+
+## Project Overview
+
+### Assumptions
+
+
+
+## Step 1: start.spring.io
+
+
+## Step 2: Transaction Model
+
+
+## Step 3: Transaction JPA Repository
+
+
+## Step 4: Exception Handling
+
+
+## Step 5: Transaction Controller
+
+
+## Recap and Questions
