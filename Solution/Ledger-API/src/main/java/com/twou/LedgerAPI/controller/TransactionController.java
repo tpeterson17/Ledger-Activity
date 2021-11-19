@@ -4,6 +4,7 @@ import com.twou.LedgerAPI.exceptions.NotFoundException;
 import com.twou.LedgerAPI.model.Transaction;
 import com.twou.LedgerAPI.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -84,6 +85,11 @@ public class TransactionController {
     @DeleteMapping("/transaction/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteTransactionById(@PathVariable Long id) {
-        transactionRepository.deleteById(id);
+        try {
+            transactionRepository.deleteById(id);
+        }
+        catch (EmptyResultDataAccessException e) {
+            throw new NotFoundException("Transaction not found");
+        }
     }
 }
