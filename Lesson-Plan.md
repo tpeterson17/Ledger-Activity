@@ -18,11 +18,16 @@ The solution for this activity can be found here: [Ledger Activity Solution](./S
 
 ## Introduction and Level Set
 
-Before going right into the project, lead a discussion with the students regarding what they've seen so far with Spring Boot, REST, JPA, JDBC, and exception handling. Consider the following questions to get the discussion going:
-1. What is Spring Data JPA?
-2. What is Spring Data JDBC?
-3. What are some differences and similarities between Spring Data JPA and JDBC?
-4. 
+Before going right into the project, lead a discussion with the students regarding what they've seen so far with Spring Boot, REST, JPA, JDBC, and exception handling. Let's refresh their memory of these topics along with getting them curious about what's ahead. Consider the following questions as jumping off points to get the discussion going:
+1. What does CRUD mean?
+2. What is Spring Data JPA?
+3. What is Spring Data JDBC?
+4. What are some differences and similarities between Spring Data JPA and JDBC?
+5. What is exception handling?
+6. What exceptions have we seen so far? Which of those have we handled?
+7. What is REST?
+8. What is a REST controller?
+9. What is RESTControllerAdvice?
 
 ### Purpose
 
@@ -36,20 +41,151 @@ The purpose of this activity is to tie REST and CRUD together by building out a 
 
 ### Project Overview
 
-* Spring Data JPA will be used with a MySQL database. The database schema will be created automatically by JPA if it does not exist, so there's no need to create it manually. The data dictionary for this database can be found in Step 2 below.
-* The Java Model
-* Data Access Layer
-* REST Controller
+* Spring Data JPA will be used with a MySQL database. The database schema will be created automatically by JPA if it does not exist, so there's no need to create it manually. The data model for this database can be found in Step 2 below. Lastly, there will be a single JPA interface serving as the DAO for the Transaction table. The interface contains just one custom method which can be seen in Step 3 below.
+* The Java model is comprised of just one class called Transaction. This model includes JPA annotations for object relational mapping.
+* The REST Controller will have basic CRUD endpoints along with a getSumOfAllTransactions() endpoint as specified in Step 5. RestControllerAdvice will be used as well for exception handling as the students have seen in the past.
 
 ### Assumptions
 
+The students have knowledge and ability in the following prerequisites for this activity:
+1. Programming basics and Java fundamentals
+2. OOP basics
+3. Data structures
+4. Collections
+5. Exception handling
+6. Spring Boot RESTful APIs (which includes Spring MVC)
+7. MySQL
+8. Spring Data JPA
 
 
 ## Step 1: start.spring.io
 
+Direct students to [spring initializr](https://start.spring.io) and send out the following outline for how the form should be filled out:
+
+1. Project: Maven Project
+2. Language: Java
+3. Spring Boot: Choose the pre-selected version.
+4. Group: com.twou (or another variation of com.company of your choosing)
+5. Artifact: Ledger-API
+6. Name: Ledger-API
+7. Description: This is a RESTful Spring Boot API responsible for performing CRUD operations on a ledger database.
+8. Package name: com.twou.Ledger-API (or another variation of com.company.Ledger-API of your choosing)
+9. Packaging: Jar
+10. Java: 8
+11. Dependencies: Take Spring Web, MySQL Driver, and Spring Data JPA.
+
+Make sure everyone is taking the correct dependencies before proceeding.
+
+Have the class generate the project and open it in their IDE.
+
+Before we go any further, we cannot run the project until the application.properties is set. The class has used all of the properties in the project before, so there's no need to spend a lot of time here unless there are questions or if there are students who cannot run their application.
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/ledger?useSSL=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+spring.datasource.username=root
+spring.datasource.password=rootroot
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+```
+
+Verify that everyone can run their application and that JPA is able to create a blank Ledger schema in each student's MySQL instance before moving onto Step 2.
 
 ## Step 2: Transaction Model
 
+Since we'll be writing the Java model based off of the data model for the database, send the following data model out to the students. This will provide them context while we're coding out this class. Remind them that JPA will handle the conversion between camel case and snake case. Lastly, point out that we're only using one entity (table) which is named Transaction.
+
+| Column           | Type       | Nullable | Extra          |
+| ---------------- | ---------- | -------- | -------------- |
+| id               | Long       | no       | auto_increment |
+| recipient        | String     | no       |                |
+| sender           | String     | no       |                |
+| softDelete       | Boolean    | yes      |                |
+| transactionValue | BigDecimal | no       |                |
+
+
+
+
+```java
+package com.twou.LedgerAPI.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Objects;
+
+@Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@SQLDelete(sql = "UPDATE transaction SET soft_delete = true WHERE id = ?")
+@Where(clause = "soft_delete = false")
+public class Transaction implements Serializable {
+
+    @Column(nullable = false, updatable = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String sender;
+
+    @Column(nullable = false)
+    private String recipient;
+
+    private Boolean softDelete = Boolean.FALSE;
+
+    @Column(nullable = false)
+    private BigDecimal transactionValue;
+
+    public Long getId() {
+        return id;
+    }
+
+    public BigDecimal getTransactionValue() {
+        return transactionValue;
+    }
+
+    public void setTransactionValue(BigDecimal transactionValue) {
+        this.transactionValue = transactionValue;
+    }
+
+    public String getRecipient() {
+        return recipient;
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Transaction ledger = (Transaction) o;
+        return getId().equals(ledger.getId()) && getSender().equals(ledger.getSender())
+                && getRecipient().equals(ledger.getRecipient())
+                && getTransactionValue().equals(ledger.getTransactionValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getSender(), getRecipient(), getTransactionValue());
+    }
+
+    @Override
+    public String toString() {
+        return "Ledger{" +
+                "id=" + id +
+                ", sender='" + sender + '\'' +
+                ", recipient='" + recipient + '\'' +
+                ", transactionValue=" + transactionValue +
+                '}';
+    }
+}
+
+```
 
 ## Step 3: Transaction JPA Repository
 
