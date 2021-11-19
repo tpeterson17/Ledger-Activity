@@ -1,20 +1,32 @@
 # Ledger Activity
 
 ## Instructor Notes
+The point of this lesson is to expose students to a RESTful CRUD API in Spring Boot for the first time. So far, they have built APIs without a data access layer. They have also built projects with Spring Data JPA and Spring Data JDBC. However, this is where we bring these concepts together by building out a RESTful CRUD API called Ledger API.
+
+This activity is intended to be primarily an instructor-do. However, delegating certain aspects of the activity to the class as well as asking questions while you're coding are encouraged. This is because the students are familiar with everything we're doing in this project aside from combining REST and CRUD.
+
+Spring Data JPA is used for this activity. Once the lesson is over, feel free to encourage students to code out this activity on their own using Spring Data JDBC instead so that they can gain exposure in both.
+
+Since we have not covered TDD and service layers yet in the course, some students who are familiar with these topics may wonder why we aren't incorporating them. For the sake of time, consider testing and service layers as out of scope. These topics may occur later in the course. Either way, feel free to send out the following links if the students are curious about testing and service layers. They can look into these on their own time.
+* [Why Service Layers?](https://blog1.westagilelabs.com/why-to-use-service-layer-in-spring-mvc-5f4fc52643c0)
+* [MockMVC Guide](https://spring.io/guides/gs/testing-web/)
+* [Mockito Guide](https://www.baeldung.com/mockito-annotations)
+
+The solution for this activity can be found here: [Ledger Activity Solution](./Solution/Ledger-API)
 
 
 ## Introduction and Level Set
 
 
-## Purpose
+### Purpose
 
 
-## Learning Objectives
+### Learning Objectives
 
 
-## Project Overview
+### Project Overview
 
-### Assumptions
+## Assumptions
 
 
 
