@@ -558,7 +558,7 @@ public class TransactionController {
 
 The last thing to do before moving onto step 5 is to make sure that everyone is able to hit each endpoint via Insomnia. The students at this point have access to the spec, the Controller solution, and bring with them the familiarity of creating requests in Insomnia. Address any questions, concerns, or issues that anyone may have.
 
-Now is a great time for another major break! We just connected the dots between our RESTController and our DAO for the first time, so it's important to step away.
+Now is a great time for a major break! We just connected the dots between our RESTController and our DAO for the first time, so it's important to step away.
 
 ## Major Break! (20 minutes)
 
