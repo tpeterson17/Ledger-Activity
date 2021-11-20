@@ -207,7 +207,7 @@ Guide students towards the following solution which is a class level annotation 
 
 ```
 
-Intellisense will likely prompt for an import. Be sure the following import is the one that you're taking:
+Your IDE will likely prompt for an import. Be sure the following import is the one that you're taking:
 
 ```java
 import org.hibernate.annotations.SQLDelete;
@@ -221,7 +221,7 @@ The final requirement for the Transaction class is for us to make sure only the 
 
 ```
 
-Intellisense will likely prompt for an import. Be sure the following import is the one that you're taking:
+Your IDE will likely prompt for an import. Be sure the following import is the one that you're taking:
 
 ```java
 import org.hibernate.annotations.Where;
@@ -315,7 +315,7 @@ public class Transaction implements Serializable {
 
 ## Step 3: Transaction JPA Repository
 
-Let's focus on the boilerplate aspects of the TransactionRepository first. Have the class generate the interface com.twou.LedgerAPI.repository.TransactionRepository. Next, ask the students what else we need to do to the interface in order for it to serve as the DAO for the Transaction model. (They have seen this boilerplate a lot, so they should be quick to the answer. If not, take a moment to review the purpose of @Repository and JpaRepository.)
+Let's focus on the boilerplate aspects of the TransactionRepository first. Have the class generate the interface com.twou.LedgerAPI.repository.TransactionRepository. Next, ask the students what else we need to do to the interface in order for it to serve as the DAO interface for the Transaction model. (They have seen this boilerplate a lot, so they should be quick to the answer. If not, take a moment to review the purpose of @Repository and JpaRepository.)
 
 Guide the class to the following intermediate solution for this interface. (This is the final solution minus the one custom method for this project.):
 
@@ -345,14 +345,14 @@ The final portion to code in this interface is to create a custom method that re
 
 ```
 
-Intellisense will likely prompt for an import. Be sure the following import is the one that you're taking:
+Your IDE will likely prompt for an import. Be sure the following import is the one that you're taking:
 
 ```java
 import org.springframework.data.jpa.repository.Query;
 
 ```
 
-Now that this DAO is finished, the following is the final version which is identical to the provided solution:
+Now that this DAO interface is finished, the following is the final version which is identical to the provided solution:
 
 ```java
 package com.twou.LedgerAPI.repository;
