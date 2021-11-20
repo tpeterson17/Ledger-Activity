@@ -1,9 +1,11 @@
-# Ledger Activity
+# Ledger Activity (Total Estimated Time: 5 hours and 40 minutes)
 
 ## Instructor Notes
 The point of this lesson is to expose students to a RESTful CRUD API in Spring Boot for the first time. So far, they have built APIs without a data access layer. They have also built projects with Spring Data JPA and Spring Data JDBC. However, this is where we bring these concepts together by building out a RESTful CRUD API called Ledger API.
 
 This activity is intended to be primarily an instructor-do. However, delegating certain aspects of the activity to the class as well as asking questions while you're coding are encouraged. This is because the students are familiar with everything we're doing in this project aside from combining REST and CRUD.
+
+The total estimated time above for the activity includes the minor break and the major break. Lunch is left out of the figure, but the suggested moment to take lunch is noted in the lesson plan before Step 4 begins.
 
 Spring Data JPA is used for this activity. Once the lesson is over, feel free to encourage students to code out this activity on their own using Spring Data JDBC instead so that they can gain exposure in both.
 
@@ -16,7 +18,7 @@ Since we have not covered TDD, service layers, and validation yet in the course,
 The solution for this activity can be found here: [Ledger Activity Solution](./Solution/Ledger-API)
 
 
-## Introduction and Level Set
+## Introduction and Level Set (30 minutes)
 
 Before going right into the project, lead a discussion with the students regarding what they've seen so far with Spring Boot, REST, JPA, JDBC, and exception handling. Let's refresh their memory of these topics along with getting them curious about what's ahead. Consider the following questions as jumping off points to get the discussion going:
 1. What does CRUD mean?
@@ -26,9 +28,10 @@ Before going right into the project, lead a discussion with the students regardi
 5. What is exception handling?
 6. What exceptions have we seen so far? Which of those have we handled?
 7. What is REST?
-8. What is a REST controller?
-9. What is RESTControllerAdvice?
-10. Which HTTP verbs have we used? What about HTTP status codes?
+8. What is JSON?
+9. What is a REST controller?
+10. What is RESTControllerAdvice?
+11. Which HTTP verbs have we used? What about HTTP status codes?
 
 ### Purpose
 
@@ -59,7 +62,7 @@ The students have knowledge and ability in the following prerequisites for this 
 8. Spring Data JPA
 
 
-## Step 1: start.spring.io
+## Step 1: start.spring.io (10 minutes)
 
 Direct students to [spring initializr](https://start.spring.io) and send out the following outline for how the form should be filled out:
 
@@ -92,7 +95,11 @@ spring.jpa.show-sql=true
 
 Verify that everyone can run their application and that JPA is able to create a blank Ledger schema in each student's MySQL instance before moving onto Step 2.
 
-## Step 2: Transaction Model
+The next portion is a long haul, so it would be a good idea to take a minor break right now.
+
+## Minor Break! (10 minutes)
+
+## Step 2: Transaction Model (1 hour 20 minutes)
 
 Since we'll be writing the Java model based off of the data model for the database, send the following data model out to the students. This will provide them context while we're coding out this class. Remind them that JPA will handle the conversion between camel case and snake case. Lastly, point out that we're only using one entity (table) which is named Transaction.
 
@@ -104,10 +111,10 @@ Since we'll be writing the Java model based off of the data model for the databa
 | softDelete       | Boolean    | no       |                |
 | transactionValue | BigDecimal | no       |                |
 
-Point out the usages of Long and BigDecimal. The students have seen these data types before, but it would be good to reiterate why we use them: 
+Highlight the usages of Long and BigDecimal. The students have seen these data types before, but it would be good to reiterate why we use them: 
 
 * In the case of Long, we are using this as an alternative to Integer so that it's less likely for us to run out of primary keys. It would be highly unlikely for this to occur in the classroom, but it's an important possibility to keep in mind in the wild. Some databases have to store incredible amounts of records. In which case, we need to consider future proofing our data models if this is a possibility.
-* In the case of BigDecimal, we are using this because it's the mostly commonly used Java data type for financials. It is very precise (unlike double and float). It also packs features for rounding, truncation, arithmetic, and more. 
+* In the case of BigDecimal, we are using this because it's the most commonly used Java data type for financials. It is very precise (unlike double and float). It also packs features for rounding, truncation, arithmetic, and more. 
 
 Start by generating the class com.twou.LedgerAPI.model.Transaction.
 
@@ -199,7 +206,7 @@ Now that the Transaction class fulfills the data model, we'll have to address th
 
 This is another great opportunity for student input and discussion. Consider asking the following questions to aid in the discussion:
 
-1. What some reasons why we would incorporate soft deletion in an application?
+1. What are some reasons why we would incorporate soft deletion in an application?
 2. What are some pros and cons of incorporating soft deletion?
 3. How can we bypass JPA's default deletion behavior?
 
@@ -318,7 +325,7 @@ public class Transaction implements Serializable {
 
 ```
 
-## Step 3: Transaction JPA Repository
+## Step 3: Transaction JPA Repository (30 minutes)
 
 Let's focus on the boilerplate aspects of the TransactionRepository first. Have the class generate the interface com.twou.LedgerAPI.repository.TransactionRepository. Next, ask the students what else we need to do to the interface in order for it to serve as the DAO interface for the Transaction model. (They have seen this boilerplate a lot, so they should be quick to the answer. If not, take a moment to review the purpose of @Repository and JpaRepository.)
 
@@ -381,9 +388,11 @@ Now would be an excellent time to do a major pulse check. Make sure everyone's a
 
 Side note: If there are any students who are have a discrepancy between their MySQL data model and their Java data model. First, make sure that their Java is congruent with the solution code. Then, have them drop the Ledger schema and re-run the Spring Boot application.
 
-If everyone is on the same page and there are no lingering questions or concerns, this would also be a great time for a major break. We just did a whole lot of JPA!
+If everyone is on the same page and there are no lingering questions or concerns, this would also be a great time to take a lunch. We just did a whole lot of JPA and are on the verge of embarking on another long haul!
 
-## Step 4: Transaction Controller
+## Lunch!
+
+## Step 4: Transaction Controller (1 hour 30 minutes)
 
 This step (as well as Step 5) is going to be where we connect the dots between REST and CRUD for the students. Be sure to take your time when coding out these controller methods. Also, keep in mind that we'll be saving all of the exception handling for Step 5, so the solution for this step overall is an intermediate solution.
 
@@ -455,9 +464,11 @@ Now we're at an exciting point in the lesson where we get to test the full syste
 Make sure that everyone is able to not only hit their APIs, but are also able to persist their data as well. Address any questions or issues before moving onto the next endpoint.
 
 ### Students Attempt Remaining Endpoints
-The boilerplate for the controller is in place and the students have now seen an example of one endpoint utilizing a DAO. This is a great opportunity to let them loose for a little while. Let's see how far they can get coding out the happy paths for the rest of the endpoints. Be extra sensitive to struggling students and reassure them that we will code through the remaining endpoints once the class has had a chance to attempt them.
+
+The boilerplate for the controller is in place and the students have now seen an example of one endpoint utilizing a DAO. This is a great opportunity to let them loose for a little while. Let's see how far they can get coding out the happy paths for the rest of the endpoints. Be extra sensitive to struggling students and reassure them that we will code through the remaining endpoints once the class has had a chance to attempt them. Consider devoting around 30 minutes of the 1 hour and 30 minutes allotted for Step 4 of this activity.
 
 ### Live Code Remaining Endpoints (Happy Path Only)
+
 Keep the following points in mind as you code the rest of the controller:
 
 1. Optionals are a common sticking point for beginners. Remind the students that JPA's findById method returns an Optional which is why we have to handle them. Optional in Java is a data structure that encapsulates another type that may or may not be null. JPA uses Optional because it has no way of knowing whether or not it will get back a null Transaction record from the database.
@@ -549,7 +560,9 @@ The last thing to do before moving onto step 5 is to make sure that everyone is 
 
 Now is a great time for another major break! We just connected the dots between our RESTController and our DAO for the first time, so it's important to step away.
 
-## Step 5: Exception Handling
+## Major Break! (20 minutes)
+
+## Step 5: Exception Handling (1 hour 10 minutes)
 
 Before we get started with the exception handling, ask the class how we went about this with our controllers in the past. Guide a brief review discussion about the role of the ControllerExceptionHandler. It's an example of AOP (Aspect Oriented Programming) which means that we're writing one class (in this case) to handle an entire "aspect" of the application. Also, point out that we practiced creating custom exceptions as well as a CustomErrorResponse leveraged by the ControllerExceptionHandler.
 
