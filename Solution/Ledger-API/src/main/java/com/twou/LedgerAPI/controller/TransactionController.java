@@ -51,7 +51,7 @@ public class TransactionController {
         }
     }
 
-    @GetMapping("/sum")
+    @GetMapping("/transaction/sum")
     @ResponseStatus(value = HttpStatus.OK)
     public BigDecimal getSumOfAllTransactions() {
         BigDecimal sum = transactionRepository.getSumOfAllTransactions();

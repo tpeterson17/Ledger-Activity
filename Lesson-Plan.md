@@ -384,13 +384,14 @@ This step (as well as Step 5) are going to contain a lot of new information for 
 
 Before we get started with coding out this controller, send out the following specification for the API:
 
-| Method Name        | Verb | URI               | Request Body | Response Body | Response Status |
-| ------------------ | ---- | ----------------- | ------------ | ------------- | --------------- |
-| getTransactionById | GET  | /transaction/{id} | none         | Transaction   | 
-| recipient        | String     | no       |                |
-| sender           | String     | no       |                |
-| softDelete       | Boolean    | no       |                |
-| transactionValue | BigDecimal | no       |                |
+| Method Name                | Verb   | URI               | Request Body | Response Body       | Response Status |
+| -------------------------- | ------ | ----------------- | ------------ | ------------------- | --------------- |
+| getTransactionById         | GET    | /transaction/{id} | none         | Transaction         | 200 OK          |
+| addTransaction             | POST   | /transaction      | Transaction  | Transaction         | 201 CREATED     |
+| updateTransactionValueById | PUT    | /transaction/{id} | Transaction  | none                | 204 NO CONTENT  |
+| deleteTransactionById      | DELETE | /transaction/{id} | none         | none                | 204 NO CONTENT  |
+| getAllTransactions         | GET    | /transaction      | none         | List\<Transaction\> | 200 OK          |
+| getSumOfAllTransactions    | GET    | /transaction/sum  | none         | BigDecimal          | 200 OK          |
 
 ## Step 5: Exception Handling
 
