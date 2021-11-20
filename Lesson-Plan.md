@@ -44,7 +44,7 @@ The purpose of this activity is to tie REST and CRUD together by building out a 
 
 * Spring Data JPA will be used with a MySQL database. The database schema will be created automatically by JPA if it does not exist, so there's no need to create it manually. The data model for this database can be found in Step 2 below. Lastly, there will be a single JPA interface serving as the DAO for the Transaction table. The interface contains just one custom method which can be seen in Step 3 below.
 * The Java model is comprised of just one class called Transaction. This model includes JPA annotations for object relational mapping.
-* The REST Controller will have basic CRUD endpoints along with a getSumOfAllTransactions() endpoint as specified in Step 5. RestControllerAdvice will be used as well for exception handling as the students have seen in the past.
+* The REST Controller will have basic CRUD endpoints along with a getSumOfAllTransactions() endpoint as specified in Step 4. RestControllerAdvice will be used as well for exception handling as the students have seen in the past.
 
 ### Assumptions
 
@@ -101,7 +101,7 @@ Since we'll be writing the Java model based off of the data model for the databa
 | id               | Long       | no       | auto_increment |
 | recipient        | String     | no       |                |
 | sender           | String     | no       |                |
-| softDelete       | Boolean    | no      |                |
+| softDelete       | Boolean    | no       |                |
 | transactionValue | BigDecimal | no       |                |
 
 Start by generating the class com.twou.LedgerAPI.model.Transaction.
@@ -370,7 +370,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     public BigDecimal getSumOfAllTransactions();
 }
 
-
 ```
 
 Now would be an excellent time to do a major pulse check. Make sure everyone's application can run. Also, we'll need to make sure that each student's MySQL instance contains the Ledger schema with the Transaction table now that everyone should have run at least once.
@@ -381,6 +380,17 @@ If everyone is on the same page and there are no lingering questions or concerns
 
 ## Step 4: Transaction Controller
 
+This step (as well as Step 5) are going to contain a lot of new information for the students. Be sure to take your time when coding out these controller methods. Also, keep in mind that we'll be saving all of the exception handling for Step 5, so the solution for this step overall is an intermediate solution.
+
+Before we get started with coding out this controller, send out the following specification for the API:
+
+| Method Name        | Verb | URI               | Request Body | Response Body | Response Status |
+| ------------------ | ---- | ----------------- | ------------ | ------------- | --------------- |
+| getTransactionById | GET  | /transaction/{id} | none         | Transaction   | 
+| recipient        | String     | no       |                |
+| sender           | String     | no       |                |
+| softDelete       | Boolean    | no       |                |
+| transactionValue | BigDecimal | no       |                |
 
 ## Step 5: Exception Handling
 

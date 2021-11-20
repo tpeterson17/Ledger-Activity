@@ -26,11 +26,11 @@ public class TransactionController {
 
     @GetMapping("/transaction/{id}")
     @ResponseStatus(value = HttpStatus.OK)
-    public Optional<Transaction> getTransactionById(@PathVariable Long id) {
+    public Transaction getTransactionById(@PathVariable Long id) {
         Optional<Transaction> foundTransaction = transactionRepository.findById(id);
 
         if (foundTransaction.isPresent()) {
-            return foundTransaction;
+            return foundTransaction.get();
 
         }
         else {
