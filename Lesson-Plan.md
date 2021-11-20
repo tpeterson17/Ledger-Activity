@@ -190,6 +190,129 @@ public class Transaction implements Serializable {
 
 ```
 
+Now that the Transaction class fulfills the data model, we'll have to address the implications of the softDelete field. For this activity, we need to make sure that the Ledger API does not delete any records. Instead, it should be setting the soft_delete column to true when an API call is made to delete a record. Describe this requirement to the students before moving forward with coding so that they have context. 
+
+This is another great opportunity for student input and discussion. Consider asking the following questions to aid in the discussion:
+
+1. What some reasons why we would incorporate soft deletion in an application?
+2. What are some pros and cons of incorporating soft deletion?
+3. How can we bypass JPA's default deletion behavior?
+
+Be sure to carefully address any questions and concerns since this is one of the more difficult aspects of the Transaction class for beginners. It would also be a good idea to pulse check here to make sure everyone is comfortable enough with these concepts.
+
+Guide students towards the following solution which is a class level annotation on the Transaction class:
+
+```java
+@SQLDelete(sql = "UPDATE transaction SET soft_delete = true WHERE id = ?")
+
+```
+
+Intellisense will likely prompt for an import. Be sure the following import is the one that you're taking:
+
+```java
+import org.hibernate.annotations.SQLDelete;
+
+```
+
+The final requirement for the Transaction class is for us to make sure only the records that have soft_delete set to false are visible to the caller. Explain this requirement to the class as well. This one is a little more straightforward conceptually and is also easier for beginners to implement. Guide the students towards the following solution which is another class level annotation on the Transaction class:
+
+```java
+@Where(clause = "soft_delete = false")
+
+```
+
+Intellisense will likely prompt for an import. Be sure the following import is the one that you're taking:
+
+```java
+import org.hibernate.annotations.Where;
+
+```
+
+Now that this model is finished, the following is the final version which is identical to the provided solution:
+
+```java
+package com.twou.LedgerAPI.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Objects;
+
+@Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@SQLDelete(sql = "UPDATE transaction SET soft_delete = true WHERE id = ?")
+@Where(clause = "soft_delete = false")
+public class Transaction implements Serializable {
+
+    @Column(nullable = false, updatable = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String sender;
+
+    @Column(nullable = false)
+    private String recipient;
+
+    @Column(nullable = false)
+    private Boolean softDelete = Boolean.FALSE;
+
+    @Column(nullable = false)
+    private BigDecimal transactionValue;
+
+    public Long getId() {
+        return id;
+    }
+
+    public BigDecimal getTransactionValue() {
+        return transactionValue;
+    }
+
+    public void setTransactionValue(BigDecimal transactionValue) {
+        this.transactionValue = transactionValue;
+    }
+
+    public String getRecipient() {
+        return recipient;
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Transaction transaction = (Transaction) o;
+        return getId().equals(transaction.getId()) && getSender().equals(transaction.getSender())
+                && getRecipient().equals(transaction.getRecipient())
+                && getTransactionValue().equals(transaction.getTransactionValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getSender(), getRecipient(), getTransactionValue());
+    }
+
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "id=" + id +
+                ", sender='" + sender + '\'' +
+                ", recipient='" + recipient + '\'' +
+                ", transactionValue=" + transactionValue +
+                '}';
+    }
+}
+
+```
+
 ## Step 3: Transaction JPA Repository
 
 
