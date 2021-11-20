@@ -680,6 +680,8 @@ public class ControllerExceptionHandler {
 
 ```
 
+### Final Version of the Controller
+
 Before we get into writing the "sad path" logic, start a discussion about controller exception handling. Consider the following questions as a jumping off point:
 
 1. Which endpoints might (need to) throw exceptions and why? 
@@ -789,3 +791,5 @@ public class TransactionController {
 ```
 
 ## Recap and Questions
+
+Now that all of the code is done, demonstrate to the class via Insomnia the responses that we get back for error cases. Also, it would be a good idea to do a major pulse check to make sure everyone's applications are functioning as expected. Address any final questions or issues that anyone may have before concluding the lesson with a concise summarization of what we did today. 
