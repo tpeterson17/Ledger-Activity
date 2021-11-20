@@ -25,7 +25,6 @@ public class TransactionController {
 
         if (foundTransaction.isPresent()) {
             return foundTransaction.get();
-
         }
         else {
             throw new NotFoundException("Transaction not found");

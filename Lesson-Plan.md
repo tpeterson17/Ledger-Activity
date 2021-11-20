@@ -104,6 +104,11 @@ Since we'll be writing the Java model based off of the data model for the databa
 | softDelete       | Boolean    | no       |                |
 | transactionValue | BigDecimal | no       |                |
 
+Point out the usages of Long and BigDecimal. The students have seen these data types before, but it would be good to reiterate why we use them: 
+
+* In the case of Long, we are using this as an alternative to Integer so that it's less likely for us to run out of primary keys. It would be highly unlikely for this to occur in the classroom, but it's an important possibility to keep in mind in the wild. Some databases have to store incredible amounts of records. In which case, we need to consider future proofing our data models if this is a possibility.
+* In the case of BigDecimal, we are using this because it's the mostly commonly used Java data type for financials. It is very precise (unlike double and float). It also packs features for rounding, truncation, arithmetic, and more. 
+
 Start by generating the class com.twou.LedgerAPI.model.Transaction.
 
 Once the class is generated, take the students' input on how they would like to develop the class based off of the data model. They should all be comfortable with declaring instance variables, using basic JPA annotations, and generating typical POJO methods such as equals, hashcode, and toString by now. Guide them towards the following intermediate solution for this model. (This is the final solution aside from the soft delete which we will get to in a moment.)
@@ -380,7 +385,7 @@ If everyone is on the same page and there are no lingering questions or concerns
 
 ## Step 4: Transaction Controller
 
-This step (as well as Step 5) are going to contain a lot of new information for the students. Be sure to take your time when coding out these controller methods. Also, keep in mind that we'll be saving all of the exception handling for Step 5, so the solution for this step overall is an intermediate solution.
+This step (as well as Step 5) is going to be where we connect the dots between REST and CRUD for the students. Be sure to take your time when coding out these controller methods. Also, keep in mind that we'll be saving all of the exception handling for Step 5, so the solution for this step overall is an intermediate solution.
 
 Before we get started with coding out this controller, send out the following specification for the API:
 
@@ -409,12 +414,378 @@ public class TransactionController {
 
 ```
 
+### POST Transaction
 
+It's worth mentioning that since the Hibernate sequence is at play, we should not be inserting any records manually into the database. Therefore, it's best that we get started with the POST endpoint first. This will allow the students to get some data into the Transaction table right away.
+
+Code this endpoint out in front of the students and have them follow along. There may be questions about dependency injection and the save JPA method. Spend extra time to make sure the class is comfortable with our usage of the transactionRepository so far in the controller. They have already seen dependency injection and the save method before in other contexts, but they're common sticking points for beginners.
+
+The controller should now look like the following:
+
+```java
+package com.twou.LedgerAPI.controller;
+
+import com.twou.LedgerAPI.model.Transaction;
+import com.twou.LedgerAPI.repository.TransactionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class TransactionController {
+    
+    @Autowired
+    TransactionRepository transactionRepository;
+    
+    @PostMapping("/transaction")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Transaction addTransaction(@RequestBody Transaction transaction) {
+        return transactionRepository.save(transaction);
+    }
+}
+
+```
+
+Now we're at an exciting point in the lesson where we get to test the full system out for the first time! 
+1. Have the class run the application and then open up Insomnia. 
+2. Create a new folder named Ledger.
+3. In the Ledger folder, create a new request for the POST endpoint we just created.
+4. When building the request body, be sure to select JSON and include sender, recipient, and transactionValue.
+
+Make sure that everyone is able to not only hit their APIs, but are also able to persist their data as well. Address any questions or issues before moving onto the next endpoint.
+
+### Students Attempt Remaining Endpoints
+The boilerplate for the controller is in place and the students have now seen an example of one endpoint utilizing a DAO. This is a great opportunity to let them loose for a little while. Let's see how far they can get coding out the happy paths for the rest of the endpoints. Be extra sensitive to struggling students and reassure them that we will code through the remaining endpoints once the class has had a chance to attempt them.
+
+### Live Code Remaining Endpoints (Happy Path Only)
+Keep the following points in mind as you code the rest of the controller:
+
+1. Optionals are a common sticking point for beginners. Remind the students that JPA's findById method returns an Optional which is why we have to handle them. Optional in Java is a data structure that encapsulates another type that may or may not be null. JPA uses Optional because it has no way of knowing whether or not it will get back a null Transaction record from the database.
+2. Since we'll be coding our exception handling later, the logic for each endpoint is happy path only. For now, any erroneous flow will result in a 500 which is totally fine for now.
+3. The method chaining and argument passing in updateTransactionValueById in the intermediate controller solution might be confusing at first to students. Especially since they may have not used Optional a whole lot yet. Consider the following alternative logic to make the code more beginner readable:
+```java
+    @PutMapping("/transaction/{id}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void updateTransactionValueById(@PathVariable Long id, @RequestBody Transaction transaction) {
+        
+        Optional<Transaction> optionalTransaction = transactionRepository.findById(id);
+        
+        if (optionalTransaction.isPresent()) {
+            Transaction foundTransaction = optionalTransaction.get();
+            BigDecimal newTransactionValue = transaction.getTransactionValue();
+            foundTransaction.setTransactionValue(newTransactionValue);
+            transactionRepository.save(foundTransaction);
+        }
+    }
+
+```
+
+The following is the intermediate (happy path) solution for the whole controller:
+
+```java
+package com.twou.LedgerAPI.controller;
+
+import com.twou.LedgerAPI.model.Transaction;
+import com.twou.LedgerAPI.repository.TransactionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+public class TransactionController {
+
+    @Autowired
+    TransactionRepository transactionRepository;
+
+    @GetMapping("/transaction/{id}")
+    @ResponseStatus(value = HttpStatus.OK)
+    public Transaction getTransactionById(@PathVariable Long id) {
+        return transactionRepository.findById(id).get();
+    }
+
+    @PostMapping("/transaction")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Transaction addTransaction(@RequestBody Transaction transaction) {
+        return transactionRepository.save(transaction);
+    }
+
+    @PutMapping("/transaction/{id}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void updateTransactionValueById(@PathVariable Long id, @RequestBody Transaction transaction) {
+        Optional<Transaction> foundTransaction = transactionRepository.findById(id);
+
+        if (foundTransaction.isPresent()) {
+            foundTransaction.get().setTransactionValue(transaction.getTransactionValue());
+            transactionRepository.save(foundTransaction.get());
+        }
+    }
+
+    @DeleteMapping("/transaction/{id}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void deleteTransactionById(@PathVariable Long id) {
+        transactionRepository.deleteById(id);
+    }
+
+    @GetMapping("/transaction")
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<Transaction> getAllTransactions() {
+        return transactionRepository.findAll();
+    }
+
+    @GetMapping("/transaction/sum")
+    @ResponseStatus(value = HttpStatus.OK)
+    public BigDecimal getSumOfAllTransactions() {
+        return transactionRepository.getSumOfAllTransactions();
+    }
+}
+
+```
+
+The last thing to do before moving onto step 5 is to make sure that everyone is able to hit each endpoint via Insomnia. The students at this point have access to the spec, the Controller solution, and bring with them the familiarity of creating requests in Insomnia. Address any questions, concerns, or issues that anyone may have.
+
+Now is a great time for another major break! We just connected the dots between our RESTController and our DAO for the first time, so it's important to step away.
 
 ## Step 5: Exception Handling
 
+Before we get started with the exception handling, ask the class how we went about this with our controllers in the past. Guide a brief review discussion about the role of the ControllerExceptionHandler. It's an example of AOP (Aspect Oriented Programming) which means that we're writing one class (in this case) to handle an entire "aspect" of the application. Also, point out that we practiced creating custom exceptions as well as a CustomErrorResponse leveraged by the ControllerExceptionHandler.
 
+Once the class' memory of controller exception handling is refreshed, have them copy over the necessary boilerplate. We'll be incorporating the following that we've already written in previous sessions. Feel free to send these out in case some students do not have copies readily accessible:
 
+### NotFoundException
 
+This is to be placed in com.twou.LedgerAPI.exceptions:
+
+```java
+package com.twou.LedgerAPI.exceptions;
+
+public class NotFoundException extends RuntimeException {
+
+    public NotFoundException() {
+        super();
+    }
+
+    public NotFoundException(String message) {
+        super(message);
+    }
+}
+
+```
+
+### CustomErrorResponse
+
+This is to be placed in com.twou.LedgerAPI.model:
+
+```java
+package com.twou.LedgerAPI.model;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.time.LocalDateTime;
+
+public class CustomErrorResponse {
+
+    String errorMsg;
+    int status;
+    String errorCode;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
+    LocalDateTime timestamp;
+
+    public CustomErrorResponse() {
+    }
+
+    public CustomErrorResponse(String errorCode, String errorMsg) {
+        this.errorCode = errorCode;
+        this.errorMsg = errorMsg;
+    }
+
+    public String getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(String errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorMsg() {
+        return errorMsg;
+    }
+
+    public void setErrorMsg(String errorMsg) {
+        this.errorMsg = errorMsg;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+}
+
+```
+
+### ControllerExceptionHandler
+
+This is to be placed in com.twou.LedgerAPI.controller
+
+``` java
+package com.twou.LedgerAPI.controller;
+
+import com.twou.LedgerAPI.exceptions.NotFoundException;
+import com.twou.LedgerAPI.model.CustomErrorResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.time.LocalDateTime;
+
+@RestControllerAdvice
+public class ControllerExceptionHandler {
+
+    @ExceptionHandler(value = NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<CustomErrorResponse> notFoundException(NotFoundException e) {
+        CustomErrorResponse error = new CustomErrorResponse(HttpStatus.NOT_FOUND.toString(), e.getMessage());
+        error.setStatus((HttpStatus.NOT_FOUND.value()));
+        error.setTimestamp(LocalDateTime.now());
+        ResponseEntity<CustomErrorResponse> responseEntity = new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return responseEntity;
+    }
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ResponseEntity<CustomErrorResponse> outOfRangeException(IllegalArgumentException e) {
+        CustomErrorResponse error = new CustomErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY.toString(), e.getMessage());
+        error.setStatus((HttpStatus.UNPROCESSABLE_ENTITY.value()));
+        error.setTimestamp(LocalDateTime.now());
+        ResponseEntity<CustomErrorResponse> responseEntity = new ResponseEntity<>(error, HttpStatus.UNPROCESSABLE_ENTITY);
+        return responseEntity;
+    }
+
+}
+
+```
+
+Before we get into writing the "sad path" logic, start a discussion about controller exception handling. Consider the following questions as a jumping off point:
+
+1. Which endpoints might (need to) throw exceptions and why? 
+2. When would we want to return a status of 422? 
+3. When would we want to return a status of 404? 
+4. What information should we be returning to the caller? Is there any information that we would not want to send?
+5. Why is it important that we return clear and concise error messages?
+
+Considering that there's not a whole lot in common logically between the endpoints when it comes to exception handling, it would be best to code out the rest of the logic in front of the class-- explaining the logic as you go. They will have chances in the future to write this kind of logic themselves, so this will serve as an initial exposure combining all these different concepts together. Be sensitive to any questions that may arise as you're going through this. The following is the final solution for the TransactionController. This is congruent with the provided solution project:
+
+```java
+package com.twou.LedgerAPI.controller;
+
+import com.twou.LedgerAPI.exceptions.NotFoundException;
+import com.twou.LedgerAPI.model.Transaction;
+import com.twou.LedgerAPI.repository.TransactionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+public class TransactionController {
+
+    @Autowired
+    TransactionRepository transactionRepository;
+
+    @GetMapping("/transaction/{id}")
+    @ResponseStatus(value = HttpStatus.OK)
+    public Transaction getTransactionById(@PathVariable Long id) {
+        Optional<Transaction> foundTransaction = transactionRepository.findById(id);
+
+        if (foundTransaction.isPresent()) {
+            return foundTransaction.get();
+        }
+        else {
+            throw new NotFoundException("Transaction not found");
+        }
+    }
+
+    @PostMapping("/transaction")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Transaction addTransaction(@RequestBody Transaction transaction) {
+        return transactionRepository.save(transaction);
+    }
+
+    @PutMapping("/transaction/{id}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void updateTransactionValueById(@PathVariable Long id, @RequestBody Transaction transaction) {
+        if (transaction.getId() != id) {
+            throw new IllegalArgumentException("The ID in the URL must match the ID in the request body.");
+        }
+
+        Optional<Transaction> foundTransaction = transactionRepository.findById(id);
+
+        if (foundTransaction.isPresent()) {
+            foundTransaction.get().setTransactionValue(transaction.getTransactionValue());
+            transactionRepository.save(foundTransaction.get());
+        }
+        else {
+            throw new NotFoundException("Transaction not found");
+        }
+    }
+
+    @DeleteMapping("/transaction/{id}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void deleteTransactionById(@PathVariable Long id) {
+        try {
+            transactionRepository.deleteById(id);
+        }
+        catch (EmptyResultDataAccessException e) {
+            throw new NotFoundException("Transaction not found");
+        }
+    }
+
+    @GetMapping("/transaction")
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<Transaction> getAllTransactions() {
+        List<Transaction> foundTransactions = transactionRepository.findAll();
+
+        if (foundTransactions.isEmpty()) {
+            throw new NotFoundException("No transactions found");
+        }
+        else {
+            return transactionRepository.findAll();
+        }
+    }
+
+    @GetMapping("/transaction/sum")
+    @ResponseStatus(value = HttpStatus.OK)
+    public BigDecimal getSumOfAllTransactions() {
+        BigDecimal sum = transactionRepository.getSumOfAllTransactions();
+
+        if (sum == null) {
+            return BigDecimal.ZERO;
+        }
+        else {
+            return sum;
+        }
+    }
+}
+
+```
 
 ## Recap and Questions
