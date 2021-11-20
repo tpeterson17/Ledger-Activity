@@ -18,12 +18,6 @@ public class TransactionController {
     @Autowired
     TransactionRepository transactionRepository;
 
-    @PostMapping("/transaction")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Transaction addTransaction(@RequestBody Transaction transaction) {
-        return transactionRepository.save(transaction);
-    }
-
     @GetMapping("/transaction/{id}")
     @ResponseStatus(value = HttpStatus.OK)
     public Transaction getTransactionById(@PathVariable Long id) {
@@ -38,30 +32,10 @@ public class TransactionController {
         }
     }
 
-    @GetMapping("/transaction")
-    @ResponseStatus(value = HttpStatus.OK)
-    public List<Transaction> getAllTransactions() {
-        List<Transaction> foundTransactions = transactionRepository.findAll();
-
-        if (foundTransactions.isEmpty()) {
-            throw new NotFoundException("No transactions found");
-        }
-        else {
-            return transactionRepository.findAll();
-        }
-    }
-
-    @GetMapping("/transaction/sum")
-    @ResponseStatus(value = HttpStatus.OK)
-    public BigDecimal getSumOfAllTransactions() {
-        BigDecimal sum = transactionRepository.getSumOfAllTransactions();
-
-        if (sum == null) {
-            return BigDecimal.ZERO;
-        }
-        else {
-            return sum;
-        }
+    @PostMapping("/transaction")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Transaction addTransaction(@RequestBody Transaction transaction) {
+        return transactionRepository.save(transaction);
     }
 
     @PutMapping("/transaction/{id}")
@@ -90,6 +64,32 @@ public class TransactionController {
         }
         catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Transaction not found");
+        }
+    }
+
+    @GetMapping("/transaction")
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<Transaction> getAllTransactions() {
+        List<Transaction> foundTransactions = transactionRepository.findAll();
+
+        if (foundTransactions.isEmpty()) {
+            throw new NotFoundException("No transactions found");
+        }
+        else {
+            return transactionRepository.findAll();
+        }
+    }
+
+    @GetMapping("/transaction/sum")
+    @ResponseStatus(value = HttpStatus.OK)
+    public BigDecimal getSumOfAllTransactions() {
+        BigDecimal sum = transactionRepository.getSumOfAllTransactions();
+
+        if (sum == null) {
+            return BigDecimal.ZERO;
+        }
+        else {
+            return sum;
         }
     }
 }

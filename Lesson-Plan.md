@@ -393,6 +393,24 @@ Before we get started with coding out this controller, send out the following sp
 | getAllTransactions         | GET    | /transaction      | none         | List\<Transaction\> | 200 OK          |
 | getSumOfAllTransactions    | GET    | /transaction/sum  | none         | BigDecimal          | 200 OK          |
 
+Go over this API spec with the class and carefully field any questions about it before proceeding. It's important that everyone understands what the API is supposed to do before we start coding. It would also be a good idea to mention that we will handle exception handling later on in the lesson. For now, we will be focusing on the "happy path."
+
+Next, have the students generate the class com.twou.LedgerAPI.controller.TransactionController. Be sure to add the @RestController annotation before we get started with any of the endpoints. At this point, the class should look like the following:
+
+```java
+package com.twou.LedgerAPI.controller;
+
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class TransactionController {
+
+}
+
+```
+
+
+
 ## Step 5: Exception Handling
 
 
