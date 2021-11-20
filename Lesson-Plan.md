@@ -315,11 +315,77 @@ public class Transaction implements Serializable {
 
 ## Step 3: Transaction JPA Repository
 
+Let's focus on the boilerplate aspects of the TransactionRepository first. Have the class generate the interface com.twou.LedgerAPI.repository.TransactionRepository. Next, ask the students what else we need to do to the interface in order for it to serve as the DAO for the Transaction model. (They have seen this boilerplate a lot, so they should be quick to the answer. If not, take a moment to review the purpose of @Repository and JpaRepository.)
 
-## Step 4: Exception Handling
+Guide the class to the following intermediate solution for this interface. (This is the final solution minus the one custom method for this project.):
+
+```java
+package com.twou.LedgerAPI.repository;
+
+import com.twou.LedgerAPI.model.Transaction;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.math.BigDecimal;
+
+@Repository
+public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+
+}
+
+```
+
+Verify that the class has the above boilerplate for their interface and address any questions or concerns before moving onto the custom method.
+
+The final portion to code in this interface is to create a custom method that returns the sum of all transactions. Inform the class of this requirement. Since this custom method specifically is going to require a native SQL query, ask a student to write this query in SQL. In doing so, guide the class to the following solution to this requirement:
+
+```java
+    @Query(value = "SELECT SUM(transaction_value) FROM transaction WHERE soft_delete = false", nativeQuery = true)
+    public BigDecimal getSumOfAllTransactions();
+
+```
+
+Intellisense will likely prompt for an import. Be sure the following import is the one that you're taking:
+
+```java
+import org.springframework.data.jpa.repository.Query;
+
+```
+
+Now that this DAO is finished, the following is the final version which is identical to the provided solution:
+
+```java
+package com.twou.LedgerAPI.repository;
+
+import com.twou.LedgerAPI.model.Transaction;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.math.BigDecimal;
+
+@Repository
+public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+    @Query(value = "SELECT SUM(transaction_value) FROM transaction WHERE soft_delete = false", nativeQuery = true)
+    public BigDecimal getSumOfAllTransactions();
+}
 
 
-## Step 5: Transaction Controller
+```
+
+Now would be an excellent time to do a major pulse check. Make sure everyone's application can run. Also, we'll need to make sure that each student's MySQL instance contains the Ledger schema with the Transaction table now that everyone should have run at least once.
+
+Side note: If there are any students who are have a discrepancy between their MySQL data model and their Java data model. First, make sure that their Java is congruent with the solution code. Then, have them drop the Ledger schema and re-run the Spring Boot application.
+
+If everyone is on the same page and there are no lingering questions or concerns, this would also be a great time for a major break. We just did a whole lot of JPA!
+
+## Step 4: Transaction Controller
+
+
+## Step 5: Exception Handling
+
+
+
 
 
 ## Recap and Questions
