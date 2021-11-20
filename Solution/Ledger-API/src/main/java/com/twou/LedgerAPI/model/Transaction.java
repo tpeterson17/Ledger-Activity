@@ -26,6 +26,7 @@ public class Transaction implements Serializable {
     @Column(nullable = false)
     private String recipient;
 
+    @Column(nullable = false)
     private Boolean softDelete = Boolean.FALSE;
 
     @Column(nullable = false)

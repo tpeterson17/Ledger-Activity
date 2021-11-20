@@ -28,6 +28,7 @@ Before going right into the project, lead a discussion with the students regardi
 7. What is REST?
 8. What is a REST controller?
 9. What is RESTControllerAdvice?
+10. Which HTTP verbs have we used? What about HTTP status codes?
 
 ### Purpose
 
@@ -76,9 +77,9 @@ Direct students to [spring initializr](https://start.spring.io) and send out the
 
 Make sure everyone is taking the correct dependencies before proceeding.
 
-Have the class generate the project and open it in their IDE.
+Have the class generate the project and open it in their IDEs.
 
-Before we go any further, we cannot run the project until the application.properties is set. The class has used all of the properties in the project before, so there's no need to spend a lot of time here unless there are questions or if there are students who cannot run their application.
+Before we go any further, we cannot run the project until the application.properties is set. The class has used all of the properties in the project before, so there's no need to spend a lot of time here unless there are questions or if there are students who cannot run their applications.
 
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/ledger?useSSL=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
@@ -86,6 +87,7 @@ spring.datasource.username=root
 spring.datasource.password=rootroot
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
+
 ```
 
 Verify that everyone can run their application and that JPA is able to create a blank Ledger schema in each student's MySQL instance before moving onto Step 2.
@@ -99,18 +101,20 @@ Since we'll be writing the Java model based off of the data model for the databa
 | id               | Long       | no       | auto_increment |
 | recipient        | String     | no       |                |
 | sender           | String     | no       |                |
-| softDelete       | Boolean    | yes      |                |
+| softDelete       | Boolean    | no      |                |
 | transactionValue | BigDecimal | no       |                |
 
+Start by generating the class com.twou.LedgerAPI.model.Transaction.
 
+Once the class is generated, take the students' input on how they would like to develop the class based off of the data model. They should all be comfortable with declaring instance variables, using basic JPA annotations, and generating typical POJO methods such as equals, hashcode, and toString by now. Guide them towards the following intermediate solution for this model. (This is the final solution aside from the soft delete which we will get to in a moment.)
+
+Not all setters and getters are generated for this class. Students may point this out. Only the necessary setters and getters are included for this specific activity. They can always be added later when they're needed. Some developers will add these methods before they're needed and some won't. Point out that it is a matter of preference and that there are pros and cons of both approaches.
 
 
 ```java
 package com.twou.LedgerAPI.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -119,8 +123,6 @@ import java.util.Objects;
 
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@SQLDelete(sql = "UPDATE transaction SET soft_delete = true WHERE id = ?")
-@Where(clause = "soft_delete = false")
 public class Transaction implements Serializable {
 
     @Column(nullable = false, updatable = false)
@@ -134,6 +136,7 @@ public class Transaction implements Serializable {
     @Column(nullable = false)
     private String recipient;
 
+    @Column(nullable = false)
     private Boolean softDelete = Boolean.FALSE;
 
     @Column(nullable = false)
@@ -163,10 +166,10 @@ public class Transaction implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Transaction ledger = (Transaction) o;
-        return getId().equals(ledger.getId()) && getSender().equals(ledger.getSender())
-                && getRecipient().equals(ledger.getRecipient())
-                && getTransactionValue().equals(ledger.getTransactionValue());
+        Transaction transaction = (Transaction) o;
+        return getId().equals(transaction.getId()) && getSender().equals(transaction.getSender())
+                && getRecipient().equals(transaction.getRecipient())
+                && getTransactionValue().equals(transaction.getTransactionValue());
     }
 
     @Override
@@ -176,7 +179,7 @@ public class Transaction implements Serializable {
 
     @Override
     public String toString() {
-        return "Ledger{" +
+        return "Transaction{" +
                 "id=" + id +
                 ", sender='" + sender + '\'' +
                 ", recipient='" + recipient + '\'' +
